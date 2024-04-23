@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora con Bootstrap</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="calculator card">
+            <input type="text" class="calculator-display z-depth-1 form-control mb-2" id="display" disabled value="0" style="background-color: white; font-size: 1.5rem;">
+            <div class="row g-1">
+                <div class="col-8">
+                    <div class="d-flex flex-wrap">
+                        <button class="btn btn-info col-4" onclick="appendNumber('7')">7</button>
+                        <button class="btn btn-info col-4" onclick="appendNumber('8')">8</button>
+                        <button class="btn btn-info col-4" onclick="appendNumber('9')">9</button>
+                        <button class="btn btn-info col-4" onclick="appendNumber('4')">4</button>
+                        <button class="btn btn-info col-4" onclick="appendNumber('5')">5</button>
+                        <button class="btn btn-info col-4" onclick="appendNumber('6')">6</button>
+                        <button class="btn btn-info col-4" onclick="appendNumber('1')">1</button>
+                        <button class="btn btn-info col-4" onclick="appendNumber('2')">2</button>
+                        <button class="btn btn-info col-4" onclick="appendNumber('3')">3</button>
+                        <button class="btn btn-info col-8" onclick="appendNumber('0')">0</button>
+                        <button class="btn btn-secondary col-4" onclick="chooseOperator('sqrt')">√</button>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="d-flex flex-column">
+                        <button class="btn btn-warning col" onclick="chooseOperator('/')">÷</button>
+                        <button class="btn btn-warning col" onclick="chooseOperator('*')">x</button>
+                        <button class="btn btn-warning col" onclick="chooseOperator('-')">-</button>
+                        <button class="btn btn-warning col" onclick="chooseOperator('+')">+</button>
+                        <button class="btn btn-secondary col" onclick="chooseOperator('square')">x²</button>
+                        <button class="btn btn-secondary col" onclick="chooseOperator('%')">%</button>
+                        <button class="btn btn-danger col" onclick="clearDisplay()">AC</button>
+                        <button class="btn btn-success col" onclick="calculate()">=</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDisplay = '';
+        let operator = null;
+        let firstOperand = null;
+        let waitingForSecondOperand = false;
+        
+        function clearDisplay() {
+            currentDisplay = '';
+            operator = null;
+            firstOperand = null;
+            waitingForSecondOperand = false;
+            document.getElementById('display').value = '0';
+        }
+        
+        function appendNumber(number) {
+            if (waitingForSecondOperand) {
+                currentDisplay = number;
+                waitingForSecondOperand = false;
+            } else {
+                currentDisplay = currentDisplay === '0' ? number : currentDisplay + number;
+            }
+            document.getElementById('display').value = currentDisplay;
+        }
+        
+        function chooseOperator(nextOperator) {
+            const inputValue = parseFloat(currentDisplay);
+            if (operator && waitingForSecondOperand)  {
+                operator = nextOperator;
+                return;
+            }
+            if (firstOperand == null && !isNaN(inputValue)) {
+                firstOperand = inputValue;
+            } else if (operator) {
+                const result = performCalculation(firstOperand, inputValue, operator);
+                currentDisplay = String(result);
+                document.getElementById('display').value = currentDisplay;
+                firstOperand = result;
+            }
+            waitingForSecondOperand = true;
+            operator = nextOperator;
+        }
+        
+        function performCalculation(first, second, operator) {
+            if (operator === '+') return first + second;
+            if (operator === '-') return first - second;
+            if (operator === '*') return first * second;
+            if (operator === '/') return first / second;
+            if (operator === 'sqrt') return Math.sqrt(first);
+            if (operator === 'square') return first * first;
+            if (operator === '%') return first % second;
+        }
+        
+        function calculate() {
+            if (!waitingForSecondOperand) {
+                const secondOperand = parseFloat(currentDisplay);
+                const result = performCalculation(firstOperand, secondOperand, operator);
+                currentDisplay = String(result);
+                document.getElementById('display').value = currentDisplay;
+                firstOperand = result;
+            }
+            waitingForSecondOperand = false;
+            operator = null;
+        }
+        </script>
+        
+</body>
+</html>
